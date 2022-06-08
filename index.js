@@ -1,21 +1,22 @@
 
 const buttonColors = [
+    // There are only 4 color 
     "red",
     "blue",
     "green",
     "yellow"
 ];
 
-let gamePattern = [];
-let userClickedPattern = [];
+let gamePattern = []; // To store the pattern generate by program;
+let userClickedPattern = []; // To store the pattern click by user
 let gameStatus = false; // To track game status
-let level = 0 
+let level = 0 // Difficulty of the game 
 
 $(document).ready( function () {
     $(document).keypress( function () {
         if (!gameStatus) {
             gameStatus = true;
-            console.log(gamePattern);
+            console.log(gamePattern); // Log the pattern for future debug
             console.log(userClickedPattern);
             // Start the game once key was pressed
             nextSequence();
@@ -27,7 +28,7 @@ $(document).ready( function () {
 $("div.btn").click( function (e) {
     let userChosenColor = e.currentTarget.id; // Get the id by HTML object
     userClickedPattern.push(userChosenColor); //Get what user have click 
-    playSound(userChosenColor);
+    playSound(userChosenColor); 
     animatePress(userChosenColor);
     checkAnswer(userClickedPattern.length - 1); // Get index
 });
