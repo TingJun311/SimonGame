@@ -6,14 +6,6 @@ const buttonColors = [
     "yellow"
 ];
 
-const soundPaths = [
-    "./sounds/blue.mp3",
-    "./sounds/green.mp3",
-    "./sounds/red.mp3",
-    "./sounds/wrong.mp3",
-    "./sounds/yellow.mp3"
-];
-
 let gamePattern = [];
 let gameStatus = false;
 let userClickedPattern = [];
@@ -26,17 +18,17 @@ $(document).ready( function () {
             console.log(userClickedPattern);
             nextSequence();
             gameStatus = true;
-            $("div.btn").click( function (e) {
-                let userChosenColor = e.currentTarget.id;
-                userClickedPattern.push(userChosenColor);
-                playSound(userChosenColor);
-                animatePress(userChosenColor);
-                checkAnswer(userClickedPattern.length - 1); // Get index
-            });
         }
     });
 });
 
+$("div.btn").click( function (e) {
+    let userChosenColor = e.currentTarget.id;
+    userClickedPattern.push(userChosenColor);
+    playSound(userChosenColor);
+    animatePress(userChosenColor);
+    checkAnswer(userClickedPattern.length - 1); // Get index
+});
 function nextSequence() {
     level++;
     $("#level-title").text(`Level ${level}`);
@@ -74,8 +66,6 @@ function checkAnswer (currentLevel) {
         setTimeout(() => {
             $("body").removeClass("game-over");
         }, 200);
-        console.log(gamePattern);
-        console.log(userClickedPattern);
         startOver();
     }
 }
