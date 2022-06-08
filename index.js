@@ -1,5 +1,5 @@
 
-const colors = [
+const buttonColors = [
     "red",
     "blue",
     "green",
@@ -14,67 +14,76 @@ const soundPaths = [
     "./sounds/yellow.mp3"
 ];
 
-let gameStatus;
+let gamePattern = [];
+let gameStatus = false;
+let userClickedPattern = [];
 let level = 0;
 
 $(document).ready( function () {
     $(document).keypress( function () {
-        gameStatus = 1;
-        if (gameStatus === 1) {
-            simonGame();
+        if (!gameStatus) {
+            console.log(gamePattern);
+            console.log(userClickedPattern);
+            nextSequence();
+            gameStatus = true;
+            $("div.btn").click( function (e) {
+                let userChosenColor = e.currentTarget.id;
+                userClickedPattern.push(userChosenColor);
+                playSound(userChosenColor);
+                animatePress(userChosenColor);
+                checkAnswer(userClickedPattern.length - 1); // Get index
+            });
         }
     });
 });
 
-function simonGame () {
-    let gamePattern = [];
-    let userChosenColor;
-    let userClickPattern = [];
+function nextSequence() {
+    level++;
+    $("#level-title").text(`Level ${level}`);
+    userClickedPattern = [];
+    let rand = Math.random();
+    let randomNumber = Math.floor((rand *= (3 + 1)));
+    let randomChosenColor = buttonColors[randomNumber];
+    gamePattern.push(randomChosenColor);
+    $(`#${randomChosenColor}`).fadeOut().fadeIn();
+};
 
-    getRandomColor();
-    $("h1").text(`Level ${level}`);
-    
-    ++level;
-    function nextSequence(range) {
-        let rand = Math.random();
-        return Math.floor((rand *= (range + 1)));
-    }
-    
-    function getRandomColor () {
-        const randomNumber = nextSequence(3);
-        gamePattern.push(colors[randomNumber]);
-    }
-    console.log(gamePattern);
-    
-    function objSounds (paths) {
-        this.paths = paths;
-        this.playSounds = function () {
-            let audio = new Audio(this.paths);
-            audio.play();
-        };
-        this.animatePress = function (event) {
-            $(`#${event}`).addClass("pressed");
-            setTimeout(() => {
-                $(`#${event}`).removeClass("pressed") 
-            }, 100);
-        }
-    };
-
-    $(document).ready(function () {
-        let color = gamePattern.pop();
-        console.log(color);
-        $(`#${color}`).fadeOut().fadeIn();
-        $("div.btn").click( function (e) {
-            
-            // Get the event object id 
-            const btnId = e.currentTarget.id;
-            var newObj = new objSounds(`./sounds/${btnId}.mp3`);
-            newObj.playSounds();
-            newObj.animatePress(btnId);
-            userChosenColor = btnId;
-            userClickPattern.push(btnId);
-            simonGame();
-            console.log(userClickPattern);
-        });
-    });
+function playSound(name) {
+    var sounds = new Audio(`./sounds/${name}.mp3`);
+    sounds.play();    
 }
+
+function animatePress(currentColor) {
+    $(`#${currentColor}`).addClass("pressed");
+    setTimeout(() => {
+        $(`#${currentColor}`).removeClass("pressed");
+    }, 100);
+}
+
+function checkAnswer (currentLevel) {
+    if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+        if (gamePattern.length === userClickedPattern.length) {
+            setTimeout(() => {
+                nextSequence();
+            }, 1000);
+        }
+    } else {
+        playSound("wrong");
+        $("body").addClass("game-over");
+        $("#level-title").text("Game Over, Press Any Key to Restart")
+        setTimeout(() => {
+            $("body").removeClass("game-over");
+        }, 200);
+        console.log(gamePattern);
+        console.log(userClickedPattern);
+        startOver();
+    }
+}
+
+function startOver() {
+    gamePattern = [];
+    userClickedPattern = [];
+    level = 0;
+    gameStatus = false;
+}
+
