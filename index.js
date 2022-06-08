@@ -14,38 +14,67 @@ const soundPaths = [
     "./sounds/yellow.mp3"
 ];
 
-let gamePattern = [];
+let gameStatus;
+let level = 0;
 
-function nextSequence(range) {
-    let rand = Math.random();
-    return Math.floor((rand *= (range + 1)));
-}
+$(document).ready( function () {
+    $(document).keypress( function () {
+        gameStatus = 1;
+        if (gameStatus === 1) {
+            simonGame();
+        }
+    });
+});
 
-function getRandomColor () {
-    const randomNumber = nextSequence(3);
-    gamePattern.push(colors[randomNumber]);
-    return colors[randomNumber];
-}
+function simonGame () {
+    let gamePattern = [];
+    let userChosenColor;
+    let userClickPattern = [];
 
-function objSounds (paths, event) {
-    this.paths = paths;
-    this.event = event;
-    this.playSounds = function () {
-        let audio = new Audio(this.paths);
-        audio.play();
+    getRandomColor();
+    $("h1").text(`Level ${level}`);
+    
+    ++level;
+    function nextSequence(range) {
+        let rand = Math.random();
+        return Math.floor((rand *= (range + 1)));
+    }
+    
+    function getRandomColor () {
+        const randomNumber = nextSequence(3);
+        gamePattern.push(colors[randomNumber]);
+    }
+    console.log(gamePattern);
+    
+    function objSounds (paths) {
+        this.paths = paths;
+        this.playSounds = function () {
+            let audio = new Audio(this.paths);
+            audio.play();
+        };
+        this.animatePress = function (event) {
+            $(`#${event}`).addClass("pressed");
+            setTimeout(() => {
+                $(`#${event}`).removeClass("pressed") 
+            }, 100);
+        }
     };
-};
 
-var newObj = new objSounds("./sounds/blue.mp3", "hi");
-
-newObj.playSounds();
-
-console.log(getRandomColor());
-
-$(document).ready(function () {
-    let color = gamePattern.pop();
-    $(`#${color}`).fadeOut(function () {
-        const audio = new Audio(`./sounds/blue.mp3`);
-        audio.play();
-    }).fadeIn()
-})
+    $(document).ready(function () {
+        let color = gamePattern.pop();
+        console.log(color);
+        $(`#${color}`).fadeOut().fadeIn();
+        $("div.btn").click( function (e) {
+            
+            // Get the event object id 
+            const btnId = e.currentTarget.id;
+            var newObj = new objSounds(`./sounds/${btnId}.mp3`);
+            newObj.playSounds();
+            newObj.animatePress(btnId);
+            userChosenColor = btnId;
+            userClickPattern.push(btnId);
+            simonGame();
+            console.log(userClickPattern);
+        });
+    });
+}
